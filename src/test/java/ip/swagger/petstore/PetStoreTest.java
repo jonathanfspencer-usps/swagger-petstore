@@ -1,5 +1,6 @@
 package ip.swagger.petstore;
 
+import io.restassured.RestAssured;
 import io.restassured.RestAssured.*;
 import io.restassured.http.ContentType;
 import io.restassured.matcher.RestAssuredMatchers.*;
@@ -11,6 +12,7 @@ import static org.hamcrest.Matchers.equalTo;
 import org.junit.BeforeClass;
 import org.junit.AfterClass;
 import org.junit.Test;
+import org.junit.Before;
 
 import static org.junit.Assert.assertEquals;
 
@@ -36,6 +38,12 @@ public class PetStoreTest {
     httpClient = HttpClients.createDefault();
   }
 
+    @Before  
+    public void setup() {  
+        RestAssured.baseURI = "http://localhost:8080";  
+        RestAssured.basePath = "/api/v3";  
+    }
+
   @AfterClass
   public static void stopApplication() throws Exception {
     // Stop the application
@@ -44,15 +52,19 @@ public class PetStoreTest {
     httpClient.close();
   }
 
-  @Test
-  public void testApi() throws Exception {
-    // Make a request to the API
-    HttpGet request = new HttpGet("http://localhost:8080/api/v3/openapi.json");
-    HttpResponse response = httpClient.execute(request);
-
-    // Assert that the response is valid
-    assertEquals(200, response.getStatusLine().getStatusCode());
-  }
+  @Test  
+  public void testApi() {  
+      // Send GET request to the openapi.json endpoint  
+      Response response = given()  
+              .when()  
+              .get("/openapi.json")  
+              .then()  
+              .statusCode(200) // Assert that the response status code is 200  
+              .extract()  
+              .response();  
+        
+      System.out.println("Response: " + response.asString());  
+  }  
 
   @Test  
   public void testAddPet() {  
@@ -77,7 +89,7 @@ public class PetStoreTest {
               .contentType(ContentType.JSON)  
               .body(newPet)  
               .when()  
-              .post("http://localhost:8080/api/v3/pet")  
+              .post("/pet")  
               .then()  
               .statusCode(200)  
               .body("id", equalTo(123456))  
