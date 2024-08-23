@@ -12,3 +12,4 @@ atlassian-ide-plugin.xml
 .java-version
 dependency-reduced-pom.xml
 *.pyc
+.vscode/settings.json
